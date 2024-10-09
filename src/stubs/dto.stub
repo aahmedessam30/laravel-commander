@@ -1,0 +1,28 @@
+<?php
+
+namespace {{namespace}};
+
+class {{name}}
+{
+    public function __construct(
+        // Add your properties here
+    ) {
+        // Add your constructor logic here
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            // Add your property assignments here
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            // Add your property assignments here
+        ];
+    }
+
+    // Add your methods here
+}

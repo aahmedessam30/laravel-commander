@@ -1,0 +1,12 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Traits\EnumTrait;
+
+enum {{name}}
+{
+    use EnumTrait;
+
+    // Add your enum values here
+}

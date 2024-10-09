@@ -1,0 +1,8 @@
+<?php
+
+namespace {{namespace}};
+
+interface {{name}}
+{
+    // Add your methods here
+}
