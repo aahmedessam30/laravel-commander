@@ -28,7 +28,7 @@ class MakeModelScopeCommand extends Command
     {
         try {
             $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Scopes/$name.php");
+            $path = app_path("Scopes" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Scopes'))) {
                 mkdir(app_path('Scopes'));
@@ -44,7 +44,7 @@ class MakeModelScopeCommand extends Command
 
             Stub::save($path, 'model-scope', ['name' => $name, 'namespace' => 'App\Scopes']);
 
-            $this->components->info("Scope $path created successfully!");
+            $this->components->info(sprintf('Scope [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

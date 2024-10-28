@@ -16,7 +16,7 @@ class MakeDtoCommand extends Command
         try {
             $name = str($this->argument('name'))->studly()->replace('dto', '')->value();
             $name = str_ends_with($name, 'DTO') ? $name : "{$name}DTO";
-            $path = app_path("DTO/$name.php");
+            $path = app_path("DTO" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('DTO'))) {
                 mkdir(app_path('DTO'));
@@ -32,7 +32,7 @@ class MakeDtoCommand extends Command
 
             Stub::save($path, 'dto', ['name' => $name, 'namespace' => 'App\DTO']);
 
-            $this->components->info("Dto $path created successfully!");
+            $this->components->info(sprintf('Dto [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

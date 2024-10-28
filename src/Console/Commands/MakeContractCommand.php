@@ -16,7 +16,7 @@ class MakeContractCommand extends Command
         try {
             $name = str($this->argument('name'))->studly()->replace('contract', '')->value();
             $name = str_ends_with($name, 'Contract') ? $name : "{$name}Contract";
-            $path = app_path("Contracts/$name.php");
+            $path = app_path("Contracts" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Contracts'))) {
                 mkdir(app_path('Contracts'));
@@ -32,7 +32,7 @@ class MakeContractCommand extends Command
 
             Stub::save($path, 'contract', ['name' => $name, 'namespace' => 'App\Contracts']);
 
-            $this->components->info("Contract $path created successfully!");
+            $this->components->info(sprintf('Contract [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

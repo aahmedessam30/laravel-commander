@@ -29,7 +29,7 @@ class MakeEnumCommand extends Command
         try {
             $name = str($this->argument('name'))->studly()->replace('enum', '')->value();
             $name = str_ends_with($name, 'Enum') ? $name : "{$name}Enum";
-            $path = app_path("Enums/$name.php");
+            $path = app_path("Enums" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Enums'))) {
                 mkdir(app_path('Enums'));
@@ -45,7 +45,7 @@ class MakeEnumCommand extends Command
 
             Stub::save($path, 'enum', ['name' => $name, 'namespace' => 'App\Enums']);
 
-            $this->components->info("Enum $path created successfully!");
+            $this->components->info(sprintf('Enum [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

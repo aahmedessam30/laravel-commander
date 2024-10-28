@@ -15,7 +15,7 @@ class MakeFacadeCommand extends Command
     {
         try {
             $name = str($this->argument('name'))->studly()->replace('facade', '')->value();
-            $path = app_path("Facades/$name.php");
+            $path = app_path("Facades" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Facades'))) {
                 mkdir(app_path('Facades'));
@@ -31,7 +31,7 @@ class MakeFacadeCommand extends Command
 
             Stub::save($path, 'facade', ['name' => $name, 'namespace' => 'App\Facades', 'accessor' => $this->option('accessor')]);
 
-            $this->components->info("Facade $path created successfully!");
+            $this->components->info(sprintf('Facade [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

@@ -28,7 +28,7 @@ class MakeRepositoryCommand extends Command
     {
         try {
             $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Repositories/$name.php");
+            $path = app_path("Repositories" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Repositories'))) {
                 mkdir(app_path('Repositories'));
@@ -44,7 +44,7 @@ class MakeRepositoryCommand extends Command
 
             Stub::save($path, 'repository', ['name' => $name, 'namespace' => 'App\Repositories']);
 
-            $this->components->info("Repository $path created successfully!");
+            $this->components->info(sprintf('Repository [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

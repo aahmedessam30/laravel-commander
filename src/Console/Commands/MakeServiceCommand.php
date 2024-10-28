@@ -28,7 +28,7 @@ class MakeServiceCommand extends Command
     {
         try {
             $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Services/$name.php");
+            $path = app_path("Services" . DIRECTORY_SEPARATOR . "$name.php");
 
 
             if (!file_exists(app_path('Services'))) {
@@ -45,7 +45,7 @@ class MakeServiceCommand extends Command
 
             Stub::save($path, 'service', ['name' => $name, 'namespace' => 'App\Services']);
 
-            $this->components->info("Service $path created successfully!");
+            $this->components->info(sprintf('Service [%s] created successfully.', $name));
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());
         }

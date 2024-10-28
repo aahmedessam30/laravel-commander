@@ -28,7 +28,7 @@ class MakeTraitCommand extends Command
     {
         try {
             $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Traits/$name.php");
+            $path = app_path("Traits" . DIRECTORY_SEPARATOR . "$name.php");
 
             if (!file_exists(app_path('Traits'))) {
                 mkdir(app_path('Traits'));
@@ -44,7 +44,7 @@ class MakeTraitCommand extends Command
 
             Stub::save($path, 'trait', ['name' => $name, 'namespace' => 'App\Traits']);
 
-            $this->components->info("Trait $path created successfully!");
+            $this->components->info(sprintf('Trait [%s] created successfully.', $name));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());
