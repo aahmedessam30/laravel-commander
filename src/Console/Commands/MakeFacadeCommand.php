@@ -31,7 +31,7 @@ class MakeFacadeCommand extends Command
 
             Stub::save($path, 'facade', ['name' => $name, 'namespace' => 'App\Facades', 'accessor' => $this->option('accessor')]);
 
-            $this->components->info(sprintf('Facade [%s] created successfully.', $name));
+            $this->components->info(sprintf('Facade [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

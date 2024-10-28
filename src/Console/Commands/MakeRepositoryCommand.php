@@ -44,7 +44,7 @@ class MakeRepositoryCommand extends Command
 
             Stub::save($path, 'repository', ['name' => $name, 'namespace' => 'App\Repositories']);
 
-            $this->components->info(sprintf('Repository [%s] created successfully.', $name));
+            $this->components->info(sprintf('Repository [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

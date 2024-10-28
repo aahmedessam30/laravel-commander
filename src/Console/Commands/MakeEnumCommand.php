@@ -45,7 +45,7 @@ class MakeEnumCommand extends Command
 
             Stub::save($path, 'enum', ['name' => $name, 'namespace' => 'App\Enums']);
 
-            $this->components->info(sprintf('Enum [%s] created successfully.', $name));
+            $this->components->info(sprintf('Enum [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

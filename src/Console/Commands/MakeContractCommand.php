@@ -32,7 +32,7 @@ class MakeContractCommand extends Command
 
             Stub::save($path, 'contract', ['name' => $name, 'namespace' => 'App\Contracts']);
 
-            $this->components->info(sprintf('Contract [%s] created successfully.', $name));
+            $this->components->info(sprintf('Contract [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

@@ -44,7 +44,7 @@ class MakeTraitCommand extends Command
 
             Stub::save($path, 'trait', ['name' => $name, 'namespace' => 'App\Traits']);
 
-            $this->components->info(sprintf('Trait [%s] created successfully.', $name));
+            $this->components->info(sprintf('Trait [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());

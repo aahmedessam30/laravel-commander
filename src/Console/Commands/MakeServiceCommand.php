@@ -45,7 +45,7 @@ class MakeServiceCommand extends Command
 
             Stub::save($path, 'service', ['name' => $name, 'namespace' => 'App\Services']);
 
-            $this->components->info(sprintf('Service [%s] created successfully.', $name));
+            $this->components->info(sprintf('Service [%s] created successfully.', $path));
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());
         }

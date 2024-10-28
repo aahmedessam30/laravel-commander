@@ -32,7 +32,7 @@ class MakeDtoCommand extends Command
 
             Stub::save($path, 'dto', ['name' => $name, 'namespace' => 'App\DTO']);
 
-            $this->components->info(sprintf('Dto [%s] created successfully.', $name));
+            $this->components->info(sprintf('Dto [%s] created successfully.', $path));
 
         } catch (\Exception $e) {
             $this->components->error($e->getMessage());
