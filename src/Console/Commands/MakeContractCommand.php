@@ -18,8 +18,8 @@ class MakeContractCommand extends Command
             $name = str_ends_with($name, 'Contract') ? $name : "{$name}Contract";
             $path = app_path("Contracts" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('Contracts'))) {
-                mkdir(app_path('Contracts'));
+            if (!file_exists(app_path('Contracts')) && !mkdir($concurrentDirectory = app_path('Contracts')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

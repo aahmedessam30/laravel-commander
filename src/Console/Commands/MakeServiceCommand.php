@@ -31,8 +31,8 @@ class MakeServiceCommand extends Command
             $path = app_path("Services" . DIRECTORY_SEPARATOR . "$name.php");
 
 
-            if (!file_exists(app_path('Services'))) {
-                mkdir(app_path('Services'));
+            if (!file_exists(app_path('Services')) && !mkdir($concurrentDirectory = app_path('Services')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

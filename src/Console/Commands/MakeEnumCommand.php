@@ -31,8 +31,8 @@ class MakeEnumCommand extends Command
             $name = str_ends_with($name, 'Enum') ? $name : "{$name}Enum";
             $path = app_path("Enums" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('Enums'))) {
-                mkdir(app_path('Enums'));
+            if (!file_exists(app_path('Enums')) && !mkdir($concurrentDirectory = app_path('Enums')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

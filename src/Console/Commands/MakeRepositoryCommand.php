@@ -30,8 +30,8 @@ class MakeRepositoryCommand extends Command
             $name = str($this->argument('name'))->studly()->value();
             $path = app_path("Repositories" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('Repositories'))) {
-                mkdir(app_path('Repositories'));
+            if (!file_exists(app_path('Repositories')) && !mkdir($concurrentDirectory = app_path('Repositories')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

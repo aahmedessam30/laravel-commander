@@ -2,6 +2,7 @@
 
 namespace Ahmedessam\LaravelCommander\Providers;
 
+use Ahmedessam\LaravelCommander\Services\ApiCrud;
 use Illuminate\Support\ServiceProvider;
 use Ahmedessam\LaravelCommander\Services\StubGenerator;
 
@@ -11,6 +12,10 @@ class LaravelCommanderServiceProvider extends ServiceProvider
     {
         $this->app->bind('stub-generator', function () {
             return new StubGenerator();
+        });
+
+        $this->app->bind('api-crud', function () {
+            return new ApiCrud();
         });
     }
 

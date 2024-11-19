@@ -17,8 +17,8 @@ class MakeFacadeCommand extends Command
             $name = str($this->argument('name'))->studly()->replace('facade', '')->value();
             $path = app_path("Facades" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('Facades'))) {
-                mkdir(app_path('Facades'));
+            if (!file_exists(app_path('Facades')) && !mkdir($concurrentDirectory = app_path('Facades')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

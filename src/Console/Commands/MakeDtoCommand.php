@@ -18,8 +18,8 @@ class MakeDtoCommand extends Command
             $name = str_ends_with($name, 'DTO') ? $name : "{$name}DTO";
             $path = app_path("DTO" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('DTO'))) {
-                mkdir(app_path('DTO'));
+            if (!file_exists(app_path('DTO')) && !mkdir($concurrentDirectory = app_path('DTO')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {

@@ -30,8 +30,8 @@ class MakeModelScopeCommand extends Command
             $name = str($this->argument('name'))->studly()->value();
             $path = app_path("Scopes" . DIRECTORY_SEPARATOR . "$name.php");
 
-            if (!file_exists(app_path('Scopes'))) {
-                mkdir(app_path('Scopes'));
+            if (!file_exists(app_path('Scopes')) && !mkdir($concurrentDirectory = app_path('Scopes')) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
 
             if (file_exists($path) && !$this->option('force')) {
