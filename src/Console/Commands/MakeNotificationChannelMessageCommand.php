@@ -50,3 +50,4 @@ class MakeNotificationChannelMessageCommand extends Command
             $this->components->error($e->getMessage());
         }
     }
+}
