@@ -9,8 +9,8 @@ class MakeApiCrudCommand extends Command
 {
     protected $signature = 'make:api-crud 
     {name= : The name of the resource} 
-    {--option=* : The options to include in the resource}
-    {--except=* : The options to exclude from the resource}
+    {--option= : The options to include in the resource}
+    {--except= : The options to exclude from the resource}
     {--help : Show the help message}
     {--force : Overwrite existing files}';
 
