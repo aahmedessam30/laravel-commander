@@ -14,6 +14,8 @@ class ApiCrud extends BaseService
     private array $options;
     private array $except;
     private readonly bool $force;
+    private readonly string $version;
+    private readonly ?string $namespace;
     private static array $availableCommands = [
         'model',
         'migration',
@@ -33,20 +35,22 @@ class ApiCrud extends BaseService
         return self::$availableCommands;
     }
 
-    public static function make($command, string $name, array $options, array $except, bool $force): void
+    public static function make($command, string $name, array $options, array $except, bool $force, string $version, string $namespace): void
     {
         $instance = new self();
-        $instance->initialize($command, $name, $options, $except, $force)->createApiResource();
+        $instance->initialize($command, $name, $options, $except, $force, $version, $namespace)->createApiResource();
     }
 
-    private function initialize(mixed $command, string $name, array $options, array $except, bool $force): self
+    private function initialize(mixed $command, string $name, array $options, array $except, bool $force, string $version, string $namespace): self
     {
-        $this->command  = $command;
-        $this->name     = $name;
-        $this->options  = $options ?? [];
-        $this->except   = $except;
-        $this->force    = $force;
-        $this->commands =  $this->prepareCommands($this->filterCommands());
+        $this->command   = $command;
+        $this->name      = $name;
+        $this->options   = $options;
+        $this->except    = $except;
+        $this->force     = $force;
+        $this->version   = $version;
+        $this->namespace = $namespace;
+        $this->commands  =  $this->prepareCommands($this->filterCommands());
 
         return $this;
     }
@@ -119,6 +123,17 @@ class ApiCrud extends BaseService
         }
     }
 
+    private function getPath(): string
+    {
+        $path = 'Api/' . ucwords($this->version);
+
+        if ($this->namespace) {
+            $path .= '/' . ucwords(str_replace('/', '\\', $this->namespace));
+        }
+
+        return $path;
+    }
+
     private function createModel(): void
     {
         $name    = $this->getName($this->name);
@@ -136,26 +151,30 @@ class ApiCrud extends BaseService
         $this->createFile('model', $path, $options);
     }
 
-
     private function createController(): void
     {
-        $this->createFile('controller', app_path("Http/Controllers/{$this->getName($this->name)}Controller.php"), ['--api' => true]);
+        $name = $this->getName($this->name);
+        $path = $this->getPath() . "/{$name}Controller";
+
+        $this->createFile('controller', app_path("Http/Controllers/$path"), ['name' => $path]);
     }
 
     private function createRequest(): void
     {
         $name = $this->getName($this->name);
+        $path = $this->getPath() . '/' . $name;
 
-        $this->createFile('request', app_path("Http/Requests/$name/Store{$name}Request.php"), ['name' => "$name/Store{$name}Request"]);
-        $this->createFile('request', app_path("Http/Requests/$name/Update{$name}Request.php"), ['name' => "$name/Update{$name}Request"]);
+        $this->createFile('request', app_path("Http/Requests/$path/Store{$name}Request.php"), ['name' => "$path/Store{$name}Request"]);
+        $this->createFile('request', app_path("Http/Requests/$path/Update{$name}Request.php"), ['name' => "$path/Update{$name}Request"]);
     }
 
     private function createResource(): void
     {
         $name = $this->getName($this->name);
+        $path = $this->getPath() . '/' . $name;
 
-        $this->createFile('resource', app_path("Http/Resources/$name/{$name}Resource.php"), ['name' => "$name/{$name}Resource"]);
-        $this->createFile('resource', app_path("Http/Resources/$name/{$name}DetailResource.php"), ['name' => "$name/{$name}DetailResource"]);
+        $this->createFile('resource', app_path("Http/Resources/$path/{$name}Resource.php"), ['name' => "$path/{$name}Resource"]);
+        $this->createFile('resource', app_path("Http/Resources/$path/{$name}DetailResource.php"), ['name' => "$path/{$name}DetailResource"]);
     }
 
     private function createFactory(): void
