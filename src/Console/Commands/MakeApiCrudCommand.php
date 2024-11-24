@@ -31,7 +31,7 @@ class MakeApiCrudCommand extends Command
 
             $this->components->info('Creating API CRUD resource...');
 
-            ApiCrud::make($this, $name, $options, $except, $force);
+            ApiCrud::make($this->components, $name, $options, $except, $force);
 
             $this->components->info('API CRUD resource created successfully.');
         } catch (\Exception $e) {

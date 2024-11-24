@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static getCommands()
- * @method static make(\Ahmedessam\LaravelCommander\Console\Commands\MakeApiCrudCommand $param, array|bool|mixed|string $name, array $options, array $except, array|bool|string|null $force)
+ * @method static make($command, string $name, array $options, array $except, bool $force)
  */
 class ApiCrud extends Facade
 {
