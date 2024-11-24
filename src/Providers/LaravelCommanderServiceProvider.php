@@ -10,13 +10,8 @@ class LaravelCommanderServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind('stub-generator', function () {
-            return new StubGenerator();
-        });
-
-        $this->app->bind('api-crud', function () {
-            return new ApiCrud();
-        });
+        $this->app->bind(StubGenerator::class, fn() => new StubGenerator());
+        $this->app->bind(ApiCrud::class, fn() => new ApiCrud());
     }
 
     public function boot(): void

@@ -4,9 +4,17 @@ namespace Ahmedessam\LaravelCommander\Services;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class ApiCrud extends BaseService
 {
+    private array $commands;
+    private readonly mixed $command;
+    private readonly string $name;
+    private array $options;
+    private array $except;
+    private readonly bool $force;
+
     private static array $availableCommands = [
         'model',
         'migration',
@@ -20,35 +28,34 @@ class ApiCrud extends BaseService
         'enum',
         'trait',
     ];
-    private array $commands;
-
-    public function __construct(
-        private readonly Command $command,
-        private readonly string  $name,
-        private array            $options,
-        private array            $except,
-        private readonly bool    $force
-    )
-    {
-        $this->commands = $this->prepareCommands(array_intersect(array_diff(self::$availableCommands, $except), $options));
-
-        $this->createApiResource();
-    }
 
     public static function getCommands(): array
     {
         return self::$availableCommands;
     }
 
-    public static function make(Command $command, string $name, array $options, array $except, bool $force): void
+    public static function make($command, string $name, array $options, array $except, bool $force): void
     {
-        new self($command, $name, $options, $except, $force);
+        $instance = new self();
+        $instance->command = $command;
+        $instance->name = $name;
+        $instance->options = $options;
+        $instance->except = $except;
+        $instance->force = $force;
+        $instance->commands = $instance->prepareCommands(array_diff(self::$availableCommands, $except));
+
+        $instance->createApiResource();
+    }
+
+    private function prepareCommands(array $commands): array
+    {
+        return $commands ?: self::$availableCommands;
     }
 
     private function createApiResource(): void
     {
         foreach ($this->commands as $command) {
-            $method = 'create' . str($command)->studly()->singular();
+            $method = 'create' . Str::studly($command);
 
             if (method_exists($this, $method)) {
                 $this->$method();
@@ -58,132 +65,89 @@ class ApiCrud extends BaseService
         }
     }
 
-    private function prepareCommands(array $commands): array
+    private function createFile(string $type, string $path, array $options = []): void
     {
-        return $commands ?: self::$availableCommands;
+        $path    = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $name    = str($path)->before('.php')->afterLast(DIRECTORY_SEPARATOR);
+        $options = array_merge(['name' => $name], $options);
+
+        if ($this->force) {
+            $this->deleteFileIfExists($path);
+        }
+
+        Artisan::call("make:" . strtolower($type), $options);
+
+        $this->command->info(sprintf('%s [%s] created successfully.', str($type)->replace('-', ' ')->title()->value(), $path));
     }
 
     private function createModel(): void
     {
-        $name = $this->getName($this->name);
-        $fileOptions = ['name' => $name];
-
-        if ($this->force) {
-            if (!file_exists(app_path("Models"))) {
-                $this->deleteFileIfExists(app_path("$name.php"));
-            } else {
-                $this->deleteFileIfExists(app_path("Models/$name.php"));
-            }
-        }
+        $name    = $this->getName($this->name);
+        $options = ['name' => $name];
 
         if (in_array('migration', $this->commands, true)) {
-            $fileOptions['--migration'] = true;
-            $this->commands             = array_diff($this->commands, ['migration']);
+            $options['--migration'] = true;
+            $this->commands         = array_diff($this->commands, ['migration']);
         }
 
-        Artisan::call('make:model', $fileOptions);
+        $this->createFile('model', app_path("Models/$name.php"), $options);
     }
 
     private function createController(): void
     {
-        $name = $this->getName($this->name);
-
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Http/Controllers/{$name}Controller.php"));
-        }
-
-        Artisan::call('make:controller', ['name' => "{$name}Controller", '--api' => true]);
+        $this->createFile('controller', app_path("Http/Controllers/{$this->getName($this->name)}Controller.php"), ['--api' => true]);
     }
 
     private function createRequest(): void
     {
         $name = $this->getName($this->name);
 
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Http/Requests/$name/Store{$name}Request.php"));
-            $this->deleteFileIfExists(app_path("Http/Requests/$name/Update{$name}Request.php"));
-        }
-
-        Artisan::call('make:request', ['name' => "$name/Store{$name}Request"]);
-        Artisan::call('make:request', ['name' => "$name/Update{$name}Request"]);
+        $this->createFile('request', app_path("Http/Requests/$name/Store{$name}Request.php"));
+        $this->createFile('request', app_path("Http/Requests/$name/Update{$name}Request.php"));
     }
 
     private function createResource(): void
     {
         $name = $this->getName($this->name);
 
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Http/Resources/$name/{$name}Resource.php"));
-            $this->deleteFileIfExists(app_path("Http/Resources/$name/{$name}DetailResource.php"));
-        }
-
-        Artisan::call('make:resource', ['name' => "$name/{$name}Resource"]);
-        Artisan::call('make:resource', ['name' => "$name/{$name}DetailResource"]);
+        $this->createFile('resource', app_path("Http/Resources/$name/{$name}Resource.php"));
+        $this->createFile('resource', app_path("Http/Resources/$name/{$name}DetailResource.php"));
     }
 
     private function createFactory(): void
     {
-        $name = $this->getName($this->name);
-
-        if ($this->force) {
-            $this->deleteFileIfExists(database_path("factories/{$name}Factory.php"));
-        }
-
-        Artisan::call('make:factory', ['name' => "{$name}Factory"]);
+        $this->createFile('factory', database_path("factories/{$this->getName($this->name)}Factory.php"));
     }
 
     private function createMigration(): void
     {
         $name = $this->getName($this->name);
 
-        if ($this->force) {
-            $this->deleteFileIfExists(glob(database_path("migrations" . DIRECTORY_SEPARATOR . "*_create_{$this->getTableName($name)}_table.php")));
-        }
-
-        Artisan::call('make:migration', ['name' => $this->getMigrationName($name)]);
+        $this->createFile('migration', database_path("migrations/{$this->getMigrationName($name)}.php"));
     }
 
     private function createSeeder(): void
     {
-        $name = $this->getName($this->name);
-
-        if ($this->force) {
-            $this->deleteFileIfExists(database_path("seeders/{$name}Seeder.php"));
-        }
-
-        Artisan::call('make:seeder', ['name' => "{$name}Seeder"]);
+        $this->createFile('seeder', database_path("seeders/{$this->getName($this->name)}Seeder.php"));
     }
 
     private function createService(): void
     {
-        $name = $this->getName($this->name);
-
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Services/{$name}Service.php"));
-        }
-
-        Artisan::call('make:service', ['name' => "{$name}Service"]);
+        $this->createFile('service', app_path("Services/{$this->getName($this->name)}Service.php"));
     }
 
     private function createEnum(): void
     {
-        $name = $this->getName($this->name);
-
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Enums/{$name}Enum.php"));
-        }
-
-        Artisan::call('make:enum', ['name' => "{$name}Enum"]);
+        $this->createFile('enum', app_path("Enums/{$this->getName($this->name)}Enum.php"));
     }
 
     private function createTrait(): void
     {
-        $name = $this->getName($this->name);
+        $this->createFile('trait', app_path("Traits/{$this->getName($this->name)}Trait.php"));
+    }
 
-        if ($this->force) {
-            $this->deleteFileIfExists(app_path("Traits/{$name}Trait.php"));
-        }
-
-        Artisan::call('make:trait', ['name' => "{$name}Trait"]);
+    private function createModelScope(): void
+    {
+        $this->createFile('model-scope', app_path("Scopes/{$this->getName($this->name)}Scope.php"));
     }
 }

@@ -7,11 +7,10 @@ use Illuminate\Console\Command;
 
 class MakeApiCrudCommand extends Command
 {
-    protected $signature = 'make:api-crud 
-    {name= : The name of the resource} 
+    protected $signature = 'make:api-crud {name? : The name of the resource} 
     {--option= : The options to include in the resource}
     {--except= : The options to exclude from the resource}
-    {--help : Show the help message}
+    {--available : Show the available options}
     {--force : Overwrite existing files}';
 
     protected $description = 'Create a new API CRUD resource';
@@ -20,17 +19,17 @@ class MakeApiCrudCommand extends Command
     {
         try
         {
-            $this->components->info('Creating API CRUD resource...');
-
             $name    = $this->argument('name') ?? $this->components->ask('What is the name of the resource?');
             $options = $this->explodeOptions($this->option('option'));
             $except  = $this->explodeOptions($this->option('except'));
             $force   = $this->option('force');
 
-            if ($this->option('help')) {
+            if ($this->option('available')) {
                 $this->components->info(sprintf('The available options are: [%s]', implode(', ', ApiCrud::getCommands())));
                 return;
             }
+
+            $this->components->info('Creating API CRUD resource...');
 
             ApiCrud::make($this, $name, $options, $except, $force);
 
