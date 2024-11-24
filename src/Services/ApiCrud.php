@@ -14,7 +14,6 @@ class ApiCrud extends BaseService
     private array $options;
     private array $except;
     private readonly bool $force;
-
     private static array $availableCommands = [
         'model',
         'migration',
@@ -37,18 +36,28 @@ class ApiCrud extends BaseService
     public static function make($command, string $name, array $options, array $except, bool $force): void
     {
         $instance = new self();
-        $instance->command = $command;
-        $instance->name = $name;
-        $instance->options = $options;
-        $instance->except = $except;
-        $instance->force = $force;
-        $instance->commands = $instance->prepareCommands(array_diff(self::$availableCommands, $except));
+        $instance->initialize($command, $name, $options, $except, $force)->createApiResource();
+    }
 
-        $instance->createApiResource();
+    private function initialize(mixed $command, string $name, array $options, array $except, bool $force): self
+    {
+        $this->command  = $command;
+        $this->name     = $name;
+        $this->options  = $options;
+        $this->except   = $except;
+        $this->force    = $force;
+        $this->commands =  $this->prepareCommands(array_intersect(array_diff(self::$availableCommands, $except), $options));
+
+        return $this;
     }
 
     private function prepareCommands(array $commands): array
     {
+        if (in_array('model', $commands, true) && in_array('migration', $commands, true)) {
+            $commands   = array_diff($commands, ['migration']);
+            $commands[] = 'model-migration';
+        }
+
         return $commands ?: self::$availableCommands;
     }
 
@@ -57,41 +66,61 @@ class ApiCrud extends BaseService
         foreach ($this->commands as $command) {
             $method = 'create' . Str::studly($command);
 
+            if ($command === 'model-migration') {
+                continue;
+            }
+
             if (method_exists($this, $method)) {
                 $this->$method();
             } else {
-                $this->command->components->error(sprintf('The command [%s] is not supported.', $command));
+                $this->command->error(sprintf('The command [%s] is not supported.', $command));
             }
         }
     }
 
     private function createFile(string $type, string $path, array $options = []): void
     {
-        $path    = str_replace('/', DIRECTORY_SEPARATOR, $path);
-        $name    = str($path)->before('.php')->afterLast(DIRECTORY_SEPARATOR);
-        $options = array_merge(['name' => $name], $options);
+        $type       = strtolower($type);
+        $path       = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $name       = str($path)->before('.php')->afterLast(DIRECTORY_SEPARATOR);
+        $options    = array_merge(['name' => $name], $options);
+        $formatType = str($type)->replace('-', ' ')->title()->value();
 
-        if ($this->force) {
-            $this->deleteFileIfExists($path);
+        if (file_exists($path)) {
+            if ($this->force) {
+                $this->deleteFileIfExists($path);
+            } else {
+                $this->command->error(sprintf('%s [%s] already exists.', $formatType, $path));
+                return;
+            }
         }
 
-        Artisan::call("make:" . strtolower($type), $options);
+        Artisan::call("make:$type", $options);
 
-        $this->command->info(sprintf('%s [%s] created successfully.', str($type)->replace('-', ' ')->title()->value(), $path));
+        $this->command->info(sprintf('%s [%s] created successfully.', $formatType, $path));
+
+        if (array_key_exists('--migration', $options)) {
+            $this->command->info(sprintf('Migration [%s] created successfully.', $this->getLastMigrationFile($name)));
+        }
     }
 
     private function createModel(): void
     {
         $name    = $this->getName($this->name);
         $options = ['name' => $name];
+        $path    = file_exists(app_path("Models")) ? app_path("Models/$name.php") : app_path("$name.php");
 
-        if (in_array('migration', $this->commands, true)) {
-            $options['--migration'] = true;
-            $this->commands         = array_diff($this->commands, ['migration']);
+        if (in_array('model-migration', $this->commands, true)) {
+            if ($this->force || !$this->checkMigrationExists($name)) {
+                $options['--migration'] = true;
+            } else {
+                $this->command->error(sprintf("Migration [%s] already exists.", $this->getLastMigrationFile($name)));
+            }
         }
 
-        $this->createFile('model', app_path("Models/$name.php"), $options);
+        $this->createFile('model', $path, $options);
     }
+
 
     private function createController(): void
     {
@@ -102,16 +131,16 @@ class ApiCrud extends BaseService
     {
         $name = $this->getName($this->name);
 
-        $this->createFile('request', app_path("Http/Requests/$name/Store{$name}Request.php"));
-        $this->createFile('request', app_path("Http/Requests/$name/Update{$name}Request.php"));
+        $this->createFile('request', app_path("Http/Requests/$name/Store{$name}Request.php"), ['name' => "$name/Store{$name}Request"]);
+        $this->createFile('request', app_path("Http/Requests/$name/Update{$name}Request.php"), ['name' => "$name/Update{$name}Request"]);
     }
 
     private function createResource(): void
     {
         $name = $this->getName($this->name);
 
-        $this->createFile('resource', app_path("Http/Resources/$name/{$name}Resource.php"));
-        $this->createFile('resource', app_path("Http/Resources/$name/{$name}DetailResource.php"));
+        $this->createFile('resource', app_path("Http/Resources/$name/{$name}Resource.php"), ['name' => "$name/{$name}Resource"]);
+        $this->createFile('resource', app_path("Http/Resources/$name/{$name}DetailResource.php"), ['name' => "$name/{$name}DetailResource"]);
     }
 
     private function createFactory(): void
@@ -122,6 +151,11 @@ class ApiCrud extends BaseService
     private function createMigration(): void
     {
         $name = $this->getName($this->name);
+
+        if ($this->checkMigrationExists($name) && !$this->force) {
+            $this->command->error(sprintf("Migration [%s] already exists.", $this->getLastMigrationFile($name)));
+            return;
+        }
 
         $this->createFile('migration', database_path("migrations/{$this->getMigrationName($name)}.php"));
     }

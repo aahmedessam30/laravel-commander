@@ -20,6 +20,10 @@ class LaravelCommanderServiceProvider extends ServiceProvider
             __DIR__ . '/../stubs' => base_path('stubs'),
         ], 'laravel-commander-stubs');
 
+        $this->publishes([
+            __DIR__ . '/../Traits/EnumTrait.php' => app_path('Traits/EnumTrait.php'),
+        ], 'laravel-commander-traits');
+
         $this->loadCommands();
     }
 
