@@ -43,12 +43,27 @@ class ApiCrud extends BaseService
     {
         $this->command  = $command;
         $this->name     = $name;
-        $this->options  = $options;
+        $this->options  = $options ?? [];
         $this->except   = $except;
         $this->force    = $force;
-        $this->commands =  $this->prepareCommands(array_intersect(array_diff(self::$availableCommands, $except), $options));
+        $this->commands =  $this->prepareCommands($this->filterCommands());
 
         return $this;
+    }
+
+    private function filterCommands(): array
+    {
+        $commands = self::$availableCommands;
+
+        if (!empty($this->except)) {
+            $commands = array_diff($commands, $this->except);
+        }
+
+        if (!empty($this->options)) {
+            $commands = array_intersect($commands, $this->options);
+        }
+
+        return $commands;
     }
 
     private function prepareCommands(array $commands): array

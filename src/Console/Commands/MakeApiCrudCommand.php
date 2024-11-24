@@ -41,6 +41,6 @@ class MakeApiCrudCommand extends Command
 
     private function explodeOptions($options): array
     {
-        return explode(',', str_replace(' ', ',', $options));
+        return $options ? explode(',', str_replace(' ', ',', $options)) : [];
     }
 }
