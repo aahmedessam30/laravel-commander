@@ -3,9 +3,8 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeEnumCommand extends Command
+class MakeEnumCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,33 +21,28 @@ class MakeEnumCommand extends Command
     protected $description = 'Create a new enum class';
 
     /**
-     * Execute the console command.
+     * The file name for the Enum.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'Enum';
+
+    /**
+     * The namespace for the Enum.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\Enums\\';
+
+    /**
+     * Create the Enum file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->replace('enum', '')->value();
-            $name = str_ends_with($name, 'Enum') ? $name : "{$name}Enum";
-            $path = app_path("Enums" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('Enums')) && !mkdir($concurrentDirectory = app_path('Enums')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Enum already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'enum', ['name' => $name, 'namespace' => 'App\Enums']);
-
-            $this->components->info(sprintf('Enum [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'enum', ['name' => $name, 'namespace' => $namespace]);
     }
 }

@@ -3,9 +3,8 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeModelScopeCommand extends Command
+class MakeModelScopeCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,32 +21,28 @@ class MakeModelScopeCommand extends Command
     protected $description = 'Create a new model scope';
 
     /**
-     * Execute the console command.
+     * The file name for the model scope.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'ModelScope';
+
+    /**
+     * The namespace for the model scope.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\Scopes\\';
+
+    /**
+     * Create the model scope file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Scopes" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('Scopes')) && !mkdir($concurrentDirectory = app_path('Scopes')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Scope already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'model-scope', ['name' => $name, 'namespace' => 'App\Scopes']);
-
-            $this->components->info(sprintf('Scope [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'model-scope', ['name' => $name, 'namespace' => $namespace]);
     }
 }

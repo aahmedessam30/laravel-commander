@@ -3,16 +3,15 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeNotificationChannelCommand extends Command
+class MakeNotificationChannelCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:notification-channel {name : The name of the channel} {--force : Overwrite the channel if it exists}';
+    protected $signature = 'make:notification-channel {name} {--force : Overwrite the channel if it exists}';
 
     /**
      * The console command description.
@@ -22,32 +21,31 @@ class MakeNotificationChannelCommand extends Command
     protected $description = 'Create a new notification channel';
 
     /**
-     * Execute the console command.
+     * The file name for the notification channel.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'NotificationChannel';
+
+    /**
+     * The namespace for the notification channel.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\NotificationChannels\\';
+
+    /**
+     * Create the notification channel file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("NotificationChannels" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('NotificationChannels')) && !mkdir($concurrentDirectory = app_path('NotificationChannels')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Channel already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'notification-channel', ['name' => $name, 'namespace' => 'App\NotificationChannels']);
-
-            $this->components->info(sprintf('Notification channel [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'notification-channel', [
+            'name'      => $name,
+            'namespace' => $namespace
+        ]);
     }
 }

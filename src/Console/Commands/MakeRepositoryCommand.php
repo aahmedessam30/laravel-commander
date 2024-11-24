@@ -3,9 +3,8 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeRepositoryCommand extends Command
+class MakeRepositoryCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,32 +21,28 @@ class MakeRepositoryCommand extends Command
     protected $description = 'Create a new repository class';
 
     /**
-     * Execute the console command.
+     * The file name for the repository.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'Repository';
+
+    /**
+     * The namespace for the repository.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\Repositories\\';
+
+    /**
+     * Create the repository file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Repositories" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('Repositories')) && !mkdir($concurrentDirectory = app_path('Repositories')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Repository already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'repository', ['name' => $name, 'namespace' => 'App\Repositories']);
-
-            $this->components->info(sprintf('Repository [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'repository', ['name' => $name, 'namespace' => $namespace]);
     }
 }

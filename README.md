@@ -12,6 +12,18 @@ You can install the package via Composer:
 composer require ahmedessam/laravel-commander
 ```
 
+The package will automatically register itself.
+
+## Publishing the assets
+
+After installing the package, you must publish the assets using the following command:
+
+```bash
+php artisan vendor:publish --tag=laravel-commander-traits
+```
+
+This command will publish the `Traits` directory to the `app` directory.
+
 ## Usage
 
 To generate a new trait, run the following command:
@@ -48,6 +60,9 @@ This command will create a new interface in the `app/Contracts` directory.
 - Generate a new model scope
 - Generate a new facade
 - Generate a new data transfer object (DTO)
+- Generate a new api crud
+- Generate a new notification channel
+- Generate a new notification channel message
 
 ## Requirements
 

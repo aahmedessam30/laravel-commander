@@ -3,39 +3,46 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeDtoCommand extends Command
+class MakeDtoCommand extends MakeFileCommand
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'make:dto {name} {--force : Overwrite the dto if it exists}';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Create a new dto class';
 
-    public function handle(): void
+    /**
+     * The file name for the DTO.
+     *
+     * @var string
+     */
+    protected string $fileName = 'Dto';
+
+    /**
+     * The namespace for the DTO.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\DTO\\';
+
+    /**
+     * Create the DTO file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->replace('dto', '')->value();
-            $name = str_ends_with($name, 'DTO') ? $name : "{$name}DTO";
-            $path = app_path("DTO" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('DTO')) && !mkdir($concurrentDirectory = app_path('DTO')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Dto already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'dto', ['name' => $name, 'namespace' => 'App\DTO']);
-
-            $this->components->info(sprintf('Dto [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'dto', ['name' => $name, 'namespace' => $namespace]);
     }
 }

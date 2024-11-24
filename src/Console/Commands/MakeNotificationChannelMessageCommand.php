@@ -3,16 +3,15 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeNotificationChannelMessageCommand extends Command
+class MakeNotificationChannelMessageCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:channel-message {name : The name of the channel message} {--force : Overwrite the channel message if it exists}';
+    protected $signature = 'make:channel-message {name} {--force : Overwrite the channel message if it exists}';
 
     /**
      * The console command description.
@@ -22,32 +21,31 @@ class MakeNotificationChannelMessageCommand extends Command
     protected $description = 'Create a new notification channel message';
 
     /**
-     * Execute the console command.
+     * The file name for the notification channel message.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'ChannelMessage';
+
+    /**
+     * The namespace for the notification channel message.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\NotificationChannels\Messages\\';
+
+    /**
+     * Create the notification channel message file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("NotificationChannels" . DIRECTORY_SEPARATOR . "Messages" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('NotificationChannels' . DIRECTORY_SEPARATOR . 'Messages')) && !mkdir($concurrentDirectory = app_path('NotificationChannels' . DIRECTORY_SEPARATOR . 'Messages')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Channel message already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'channel-message', ['name' => $name, 'namespace' => 'App\NotificationChannels\Messages']);
-
-            $this->components->info(sprintf('Notification channel message [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'channel-message', [
+            'name'      => $name,
+            'namespace' => $namespace
+        ]);
     }
 }

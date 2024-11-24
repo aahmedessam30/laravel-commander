@@ -3,9 +3,8 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeTraitCommand extends Command
+class MakeTraitCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,32 +21,31 @@ class MakeTraitCommand extends Command
     protected $description = 'Create a new trait class';
 
     /**
-     * Execute the console command.
+     * The file name for the trait.
+     *
+     * @var string
      */
-    public function handle()
+    protected string $fileName = 'Trait';
+
+    /**
+     * The namespace for the trait.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\Traits\\';
+
+    /**
+     * Create the trait file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->value();
-            $path = app_path("Traits" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('Traits')) && !mkdir($concurrentDirectory = app_path('Traits')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Trait already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'trait', ['name' => $name, 'namespace' => 'App\Traits']);
-
-            $this->components->info(sprintf('Trait [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'trait', [
+            'name'      => $name,
+            'namespace' => $namespace
+        ]);
     }
 }

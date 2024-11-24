@@ -3,39 +3,46 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeContractCommand extends Command
+class MakeContractCommand extends MakeFileCommand
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'make:contract {name} {--force : Overwrite the contract if it exists}';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Create a new contract';
 
-    public function handle(): void
+    /**
+     * The file name for the contract.
+     *
+     * @var string
+     */
+    protected string $fileName = 'Contract';
+
+    /**
+     * The namespace for the contract.
+     *
+     * @var string
+     */
+    protected string $namespace = 'App\Contracts\\';
+
+    /**
+     * Create the contract file using the stub.
+     *
+     * @param string $path
+     * @param string $name
+     * @param string $namespace
+     */
+    protected function createFile(string $path, string $name, string $namespace): void
     {
-        try {
-            $name = str($this->argument('name'))->studly()->replace('contract', '')->value();
-            $name = str_ends_with($name, 'Contract') ? $name : "{$name}Contract";
-            $path = app_path("Contracts" . DIRECTORY_SEPARATOR . "$name.php");
-
-            if (!file_exists(app_path('Contracts')) && !mkdir($concurrentDirectory = app_path('Contracts')) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
-
-            if (file_exists($path) && !$this->option('force')) {
-                throw new \RuntimeException('Contract already exists!');
-            }
-
-            if ($this->option('force')) {
-                Stub::delete($path);
-            }
-
-            Stub::save($path, 'contract', ['name' => $name, 'namespace' => 'App\Contracts']);
-
-            $this->components->info(sprintf('Contract [%s] created successfully.', $path));
-
-        } catch (\Exception $e) {
-            $this->components->error($e->getMessage());
-        }
+        Stub::save($path, 'contract', ['name' => $name, 'namespace' => $namespace]);
     }
 }
