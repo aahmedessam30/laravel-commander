@@ -32,7 +32,14 @@ class LaravelCommanderServiceProvider extends ServiceProvider
         $commands = [];
 
         foreach (glob(__DIR__ . '/../Console/Commands/*.php') as $file) {
-            $commands[] = 'Ahmedessam\\LaravelCommander\\Console\\Commands\\' . pathinfo($file)['filename'];
+
+            $filename = pathinfo($file)['filename'];
+
+            if ($filename === 'MakeFileCommand') {
+                continue;
+            }
+            
+            $commands[] = 'Ahmedessam\\LaravelCommander\\Console\\Commands\\' . $filename;
         }
 
         $this->commands($commands);
