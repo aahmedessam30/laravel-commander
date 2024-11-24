@@ -10,8 +10,8 @@ class LaravelCommanderServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(StubGenerator::class, fn() => new StubGenerator());
-        $this->app->bind(ApiCrud::class, fn() => new ApiCrud());
+        $this->app->bind('stub-generator', fn() => new StubGenerator());
+        $this->app->bind('api-crud', fn() => new ApiCrud());
     }
 
     public function boot(): void
@@ -38,7 +38,7 @@ class LaravelCommanderServiceProvider extends ServiceProvider
             if ($filename === 'MakeFileCommand') {
                 continue;
             }
-            
+
             $commands[] = 'Ahmedessam\\LaravelCommander\\Console\\Commands\\' . $filename;
         }
 
