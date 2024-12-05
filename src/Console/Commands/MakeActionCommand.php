@@ -3,9 +3,8 @@
 namespace Ahmedessam\LaravelCommander\Console\Commands;
 
 use Ahmedessam\LaravelCommander\Facade\Stub;
-use Illuminate\Console\Command;
 
-class MakeActionCommand extends Command
+class MakeActionCommand extends MakeFileCommand
 {
     /**
      * The name and signature of the console command.
