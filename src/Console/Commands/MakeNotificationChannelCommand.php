@@ -32,7 +32,7 @@ class MakeNotificationChannelCommand extends MakeFileCommand
      *
      * @var string
      */
-    protected string $namespace = 'App\NotificationChannels\\';
+    protected string $namespace = 'App\Notifications\Channels\\';
 
     /**
      * Create the notification channel file using the stub.

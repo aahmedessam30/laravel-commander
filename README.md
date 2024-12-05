@@ -50,6 +50,84 @@ php artisan make:contract
 
 This command will create a new interface in the `app/Contracts` directory.
 
+To generate a new service, run the following command:
+
+```bash
+php artisan make:service
+```
+
+if you want to generate a service for a specific model, you can pass the model name as an argument:
+
+```bash
+php artisan make:service <name> --model=<model>
+```
+
+This command will create a new service in the `app/Services` directory.
+
+To generate a new repository, run the following command:
+
+```bash
+php artisan make:repository
+```
+
+This command will create a new repository in the `app/Repositories` directory.
+
+To generate a new model scope, run the following command:
+
+```bash
+php artisan make:model-scope
+```
+
+This command will create a new model scope in the `app/Scopes` directory.
+
+To generate a new facade, run the following command:
+
+```bash
+php artisan make:facade
+```
+
+This command will create a new facade in the `app/Facades` directory.
+
+To generate a new data transfer object (DTO), run the following command:
+
+```bash
+php artisan make:dto
+```
+
+This command will create a new DTO in the `app/DataTransferObjects` directory.
+
+To generate a new api crud, run the following command:
+
+```bash
+php artisan make:api-crud
+```
+
+This command will create a new api crud.
+
+To generate a new notification channel, run the following command:
+
+```bash
+php artisan make:notification-channel
+```
+
+This command will create a new notification channel in the `app/Notifications/Channels` directory.
+
+To generate a new notification channel message, run the following command:
+
+```bash
+php artisan make:channel-message
+```
+
+This command will create a new notification channel message in the `app/Notifications/Messages` directory.
+
+To generate a new action class, run the following command:
+
+```bash
+php artisan make:action
+```
+
+This command will create a new action class in the `app/Actions` directory.
+
 ## Features
 
 - Generate a new trait
@@ -63,6 +141,7 @@ This command will create a new interface in the `app/Contracts` directory.
 - Generate a new api crud
 - Generate a new notification channel
 - Generate a new notification channel message
+- Generate a new action class
 
 ## Requirements
 
