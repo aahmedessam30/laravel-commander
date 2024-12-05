@@ -41,7 +41,7 @@ class ApiCrud extends BaseService
         $instance->initialize($command, $name, $options, $except, $force, $version, $namespace)->createApiResource();
     }
 
-    private function initialize(mixed $command, string $name, array $options, array $except, bool $force, string $version, string $namespace): self
+    private function initialize($command, string $name, array $options, array $except, bool $force, string $version, string $namespace): self
     {
         $this->command   = $command;
         $this->name      = $name;
@@ -201,7 +201,10 @@ class ApiCrud extends BaseService
 
     private function createService(): void
     {
-        $this->createFile('service', app_path("Services/{$this->getName($this->name)}Service.php"));
+        $name    = $this->getName($this->name);
+        $options = in_array('model', $this->commands, true) ? ['model' => $name] : [];
+
+        $this->createFile('service', app_path("Services/{$name}Service.php"), $options);
     }
 
     private function createEnum(): void

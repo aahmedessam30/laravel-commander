@@ -11,7 +11,7 @@ class MakeServiceCommand extends MakeFileCommand
      *
      * @var string
      */
-    protected $signature = 'make:service {name?} {--force : Overwrite the service if it exists}';
+    protected $signature = 'make:service {name?} {--force : Overwrite the service if it exists} {--model : Create a service for the model}';
 
     /**
      * The console command description.
@@ -43,6 +43,14 @@ class MakeServiceCommand extends MakeFileCommand
      */
     protected function createFile(string $path, string $name, string $namespace): void
     {
-        Stub::save($path, 'service', ['name' => $name, 'namespace' => $namespace]);
+        $stub    = 'service';
+        $options = ['name' => $name, 'namespace' => $namespace];
+
+        if ($this->option('model')) {
+            $stub             = 'model-service';
+            $options['model'] = $name;
+        }
+
+        Stub::save($path, $stub, $options);
     }
 }

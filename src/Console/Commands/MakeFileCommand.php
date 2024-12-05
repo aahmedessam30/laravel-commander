@@ -30,27 +30,22 @@ abstract class MakeFileCommand extends Command
         try {
             // Get the file name from the argument or ask the user
             $basename = $this->argument('name') ?? $this->components->ask('What is the name of the file?');
-            $name = $this->formatFileName($basename);
+            $name     = $this->formatFileName($basename);
 
             // Get the namespace and file path
             $this->namespace = $this->getNamespace($basename);
-            $path = $this->getFilePath($this->namespace, $name);
-            $folder = dirname($path);
+            $path            = $this->getFilePath($this->namespace, $name);
+            $folder          = dirname($path);
 
-            // Ensure the folder exists
             $this->createDirectoryIfNeeded($folder);
 
-            // Check if the file already exists and handle the --force option
             $this->checkFileExistence($path);
 
-            // Create the file using the stub
             $this->createFile($path, $name, $this->namespace);
 
-            // Success message
             $this->components->info(sprintf('%s [%s] created successfully.', $this->fileName, $path));
 
         } catch (\Exception $e) {
-            // Error message
             $this->components->error($e->getMessage());
         }
     }
