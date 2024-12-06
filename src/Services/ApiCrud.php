@@ -35,13 +35,13 @@ class ApiCrud extends BaseService
         return self::$availableCommands;
     }
 
-    public static function make($command, string $name, array $options, array $except, bool $force, string $version, string $namespace): void
+    public static function make($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null): void
     {
         $instance = new self();
         $instance->initialize($command, $name, $options, $except, $force, $version, $namespace)->createApiResource();
     }
 
-    private function initialize($command, string $name, array $options, array $except, bool $force, string $version, string $namespace): self
+    private function initialize($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null): self
     {
         $this->command   = $command;
         $this->name      = $name;
@@ -202,7 +202,7 @@ class ApiCrud extends BaseService
     private function createService(): void
     {
         $name    = $this->getName($this->name);
-        $options = in_array('model', $this->commands, true) ? ['model' => $name] : [];
+        $options = in_array('model', $this->commands, true) ? ['--model' => $name] : [];
 
         $this->createFile('service', app_path("Services/{$name}Service.php"), $options);
     }
