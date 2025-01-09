@@ -47,8 +47,9 @@ class MakeServiceCommand extends MakeFileCommand
         $options = ['name' => $name, 'namespace' => $namespace];
 
         if ($this->option('model')) {
-            $stub             = 'model-service';
-            $options['model'] = str($name)->beforeLast('Service')->singular()->studly()->value();
+            $stub                 = 'model-service';
+            $options['model']     = str($name)->beforeLast('Service')->singular()->studly()->value();
+            $options['namespace'] = file_exists(app_path('Models')) ? "App\Models\\{$options['model']}" : "App\\{$options['model']}";
         }
 
         Stub::save($path, $stub, $options);
