@@ -48,7 +48,7 @@ class MakeServiceCommand extends MakeFileCommand
 
         if ($this->option('model')) {
             $stub             = 'model-service';
-            $options['model'] = $name;
+            $options['model'] = str($name)->beforeLast('Service')->singular()->studly()->value();
         }
 
         Stub::save($path, $stub, $options);

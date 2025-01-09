@@ -7,13 +7,14 @@ use Illuminate\Console\Command;
 
 class MakeApiCrudCommand extends Command
 {
-    protected $signature = 'make:api-crud {name? : The name of the resource} 
+    protected $signature = 'make:api-crud {name? : The name of the resource}
     {--api-version= : The version of the resource}
     {--namespace= : The namespace of the resource}
     {--only= : The options to only include in the resource}
     {--except= : The options to exclude from the resource}
     {--available : Show the available options}
-    {--force : Overwrite existing files}';
+    {--force : Overwrite existing files}
+    {--transtable : The resource is translatable}';
 
     protected $description = 'Create a new API CRUD resource';
 
@@ -21,12 +22,13 @@ class MakeApiCrudCommand extends Command
     {
         try
         {
-            $name      = $this->argument('name') ?? $this->components->ask('What is the name of the resource?');
-            $version   = $this->option('api-version') ?? $this->askForApiVersion();
-            $namespace = $this->option('namespace') ?? $this->askForNamespace();
-            $options   = $this->explodeOptions($this->option('only'));
-            $except    = $this->explodeOptions($this->option('except'));
-            $force     = $this->option('force');
+            $name       = $this->argument('name') ?? $this->components->ask('What is the name of the resource?');
+            $version    = $this->option('api-version') ?? $this->askForApiVersion();
+            $namespace  = $this->option('namespace') ?? $this->askForNamespace();
+            $options    = $this->explodeOptions($this->option('only'));
+            $except     = $this->explodeOptions($this->option('except'));
+            $force      = $this->option('force');
+            $transtable = $this->option('transtable') ?: $this->components->confirm('Is the resource translatable?', false);
 
             if ($this->option('available')) {
                 $this->components->info(sprintf('The available options are: [%s]', implode(', ', ApiCrud::getCommands())));
@@ -35,7 +37,7 @@ class MakeApiCrudCommand extends Command
 
             $this->components->info('Creating API CRUD resource...');
 
-            ApiCrud::make($this->components, $name, $options, $except, $force, $version, $namespace);
+            ApiCrud::make($this->components, $name, $options, $except, $force, $version, $namespace, $transtable);
 
             $this->components->info('API CRUD resource created successfully.');
         } catch (\Exception $e) {

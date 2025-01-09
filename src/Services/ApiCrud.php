@@ -16,6 +16,7 @@ class ApiCrud extends BaseService
     private readonly bool $force;
     private readonly string $version;
     private readonly ?string $namespace;
+    private bool $transtable = false;
     private static array $availableCommands = [
         'model',
         'migration',
@@ -35,22 +36,23 @@ class ApiCrud extends BaseService
         return self::$availableCommands;
     }
 
-    public static function make($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null): void
+    public static function make($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null, bool $transtable = false): void
     {
         $instance = new self();
-        $instance->initialize($command, $name, $options, $except, $force, $version, $namespace)->createApiResource();
+        $instance->initialize($command, $name, $options, $except, $force, $version, $namespace, $transtable)->createApiResource();
     }
 
-    private function initialize($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null): self
+    private function initialize($command, string $name, array $options, array $except, bool $force, string $version, ?string $namespace = null, bool $transtable = false): self
     {
-        $this->command   = $command;
-        $this->name      = $name;
-        $this->options   = $options;
-        $this->except    = $except;
-        $this->force     = $force;
-        $this->version   = $version;
-        $this->namespace = $namespace;
-        $this->commands  =  $this->prepareCommands($this->filterCommands());
+        $this->command    = $command;
+        $this->name       = $name;
+        $this->options    = $options;
+        $this->except     = $except;
+        $this->force      = $force;
+        $this->version    = $version;
+        $this->namespace  = $namespace;
+        $this->transtable = $transtable;
+        $this->commands   = $this->prepareCommands($this->filterCommands());
 
         return $this;
     }
@@ -136,7 +138,17 @@ class ApiCrud extends BaseService
 
     private function createModel(): void
     {
-        $name    = $this->getName($this->name);
+        $name = $this->getName($this->name);
+
+        $this->createModelFile($name);
+
+        if ($this->transtable) {
+            $this->createModelFile("{$name}Translation");
+        }
+    }
+
+    private function createModelFile($name): void
+    {
         $options = ['name' => $name];
         $path    = file_exists(app_path("Models")) ? app_path("Models/$name.php") : app_path("$name.php");
 
