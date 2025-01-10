@@ -44,8 +44,8 @@ class StubGenerator
 
     public function makeDirectory(string $path): void
     {
-        if (!file_exists($path)) {
-            mkdir($path);
+        if (!file_exists($path) && !mkdir($path) && !is_dir($path)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $path));
         }
     }
 

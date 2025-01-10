@@ -2,7 +2,7 @@
 
 namespace {{namespace}};
 
-use App\Models\{{model}};
+use {{model_namespace}};
 
 class {{name}}
 {
