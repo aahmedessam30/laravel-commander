@@ -35,7 +35,7 @@ class LaravelCommanderServiceProvider extends ServiceProvider
 
             $filename = pathinfo($file)['filename'];
 
-            if ($this->app->version() >= 10 && in_array($filename, ['MakeTraitCommand', 'MakeEnumCommand'], true)) {
+            if ($this->app->version() >= 11 && in_array($filename, ['MakeTraitCommand', 'MakeEnumCommand'], true)) {
                 continue;
             }
 
